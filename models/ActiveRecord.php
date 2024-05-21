@@ -1,5 +1,10 @@
 <?php
 namespace Model;
+
+/** la versión de php 8.2 no acepta la creación dinámica de propiedades, 
+* para solucionarlo, hay añadir la bandera #[\AllowDynamicProperties] */
+#[\AllowDynamicProperties]
+
 class ActiveRecord {
 
     // Base DE DATOS
