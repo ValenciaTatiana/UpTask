@@ -2,57 +2,80 @@
 
 namespace Controllers;
 
-class LoginController {
-    public static function login() {
+use MVC\Router;
 
-        echo 'Desde Login';
+class LoginController {
+    public static function login(Router $router) {
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+            
         }
+
+        // Render a la vista
+        $router->render('auth/login', [
+            // Para crear titulos dinamicos
+            'titulo' => 'Iniciar Sesión'
+        ]);
     }
 
-    public static function logout() {
+    public static function logout(Router $router) {
 
        
     }
 
-    public static function crear() {
+    public static function crear(Router $router) {
 
-        echo 'Desde crear';
 
-        if($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-        }
-    }
-
-    public static function olvide() {
-
-        echo 'Desde olvide';
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         }
+
+        $router->render('auth/crear', [
+            // Para crear titulos dinamicos
+            'titulo' => 'Crea Tu Cuenta'
+        ]);
     }
 
-    public static function reestablecer() {
-
-        echo 'Desde reestablecer';
+    public static function olvide(Router $router) {
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         }
+
+        $router->render('auth/olvide', [
+            // Para crear titulos dinamicos
+            'titulo' => 'Olvide Password'
+        ]);
     }
 
-    public static function mensaje() {
+    public static function reestablecer(Router $router) {
 
-        echo 'Desde mensaje';
 
+        if($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        }
+
+        $router->render('auth/reestablecer', [
+            // Para crear titulos dinamicos
+            'titulo' => 'Reestablecer Password'
+        ]);
     }
 
-    public static function confirmar() {
+    public static function mensaje(Router $router) {
 
-        echo 'Desde confirmar';
+        $router->render('auth/mensaje', [
+            // Para crear titulos dinamicos
+            'titulo' => 'Mensaje Reestablecer Password'
+        ]);
+    }
+
+    public static function confirmar(Router $router) {
+
+        $router->render('auth/confirmar', [
+            // Para crear titulos dinamicos
+            'titulo' => 'Confirmar nuevo Password'
+        ]);
 
     }
 }
