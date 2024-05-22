@@ -1,6 +1,6 @@
 <?php
 
-function debuguear($variable) : string {
+function debuguear($variable) {
     echo "<pre>";
     var_dump($variable);
     echo "</pre>";

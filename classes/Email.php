@@ -69,6 +69,6 @@ class Email {
         $mail->Body = $contenido;
 
         // Enviar el email
-       // $mail->send();
+        $mail->send();
     }
 }

@@ -36,8 +36,18 @@ class Usuario extends ActiveRecord {
         }
         return self::$alertas;
     }
-        
-    public function hashPassword() {
+
+    public function validarEmail() {
+        if(!$this->email) {
+            self::$alertas['error'][] = "El Email del Usuario es Obligatorio";
+        }
+        if(!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
+            self::$alertas['error'][] = "Ingresa un Email válido ";
+        }
+        return self::$alertas;
+    }
+
+        public function hashPassword() {
         $this->password = password_hash($this->password, PASSWORD_BCRYPT);
     }
 
@@ -45,7 +55,27 @@ class Usuario extends ActiveRecord {
         $this->token = uniqid();
     }
 
-    public function validarEmail() {
-        
+    public function validarPassword() {
+        if(!$this->password) {
+            self::$alertas['error'][] = "El Password del Usuario es Obligatorio";
+        }
+        if(strlen($this->password) < 6) {
+            self::$alertas['error'][] = "El Password debe contener almenos 6 caracteres";
+        }
+        return self::$alertas;
+    }
+
+    // Validar Login
+    public function validarLogin() {
+        if(!$this->email) {
+            self::$alertas['error'][] = "El Email del Usuario es Obligatorio";
+        }
+        if(!$this->password) {
+            self::$alertas['error'][] = "El Password del Usuario es Obligatorio";
+        }
+        if(strlen($this->password) < 6) {
+            self::$alertas['error'][] = "El Password debe contener almenos 6 caracteres";
+        }
+        return self::$alertas;
     }
 }

@@ -8,15 +8,46 @@ use MVC\Router;
 
 class LoginController {
     public static function login(Router $router) {
+        $alertas = [];
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
-            
-        }
+            $usuario = new Usuario($_POST);
 
+            $alertas = $usuario->validarLogin();
+
+            if(empty($alertas)) {
+                // Validar que el usuario exista
+                $usuario = Usuario::where('email', $usuario->email);
+
+                if(!$usuario || !$usuario->confirmado) {
+                    Usuario::setAlerta('error', 'El Usuario no existe o no esta confirmado');
+                } else {
+                    /** El Usuario Existe */
+                    // Validar password
+                    if(password_verify($_POST['password'], $usuario->password)) {
+                        session_start();
+
+                        $_SESSION['id'] = $usuario->id;
+                        $_SESSION['nombre'] = $usuario->nombre;
+                        $_SESSION['email'] = $usuario->email;
+                        $_SESSION['login'] = true;
+
+                        // Redireccionar
+                        header('Location: /proyectos');
+                        
+                    } else {
+                        Usuario::setAlerta('error', 'El password es incorrecto');
+                    }
+                }
+                //debuguear($usuario);
+            }
+        }
+        $alertas = Usuario::getAlertas();
         // Render a la vista
         $router->render('auth/login', [
             // Para crear titulos dinamicos
-            'titulo' => 'Iniciar Sesión'
+            'titulo' => 'Iniciar Sesión',
+            'alertas' => $alertas
         ]);
     }
 
@@ -81,7 +112,31 @@ class LoginController {
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
             $usuario = new Usuario($_POST);
             $alertas = $usuario->validarEmail();
+            if(empty($alertas)) {
+                //Buscar email usuario
+                $usuario = Usuario::where('email', $usuario->email);
+
+                if($usuario && $usuario->confirmado) {
+                    /** Usuario encontrado */
+                    // Generar nuevo token
+                    $usuario->generarToken();
+                    unset($usuario->password2);
+    
+                    // Actualizar el usuario
+                    $usuario->guardar();
+    
+                    // Enviar el email
+                    $email = new Email($usuario->email, $usuario->nombre, $usuario->token);
+                    $email->enviarInstrucciones();
+    
+                    // Imprimir la alerta
+                    Usuario::setAlerta('exito', 'Hemos enviado las instrucciones a tu Email');
+                } else {
+                    Usuario::setAlerta('error', 'Usuario no encontrado');
+                }
+            }
         }
+        $alertas = Usuario::getAlertas();
 
         $router->render('auth/olvide', [
             // Para crear titulos dinamicos
@@ -91,15 +146,49 @@ class LoginController {
     }
 
     public static function reestablecer(Router $router) {
+        
+        $token = s($_GET['token']);
+        $mostrar = true;
+        $alertas = [];
 
+        if(!$token) header('Location: /');
+
+        // Encontrar al usuario con ese token
+        $usuario = Usuario::where('token', $token);
+
+        if(empty($usuario)) {
+            Usuario::setAlerta('error', 'Token No Valido');
+            $mostrar = false;
+        }
 
         if($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Añadir el nuevo password
+            $usuario->sincronizar($_POST);
+
+            // Añadir el nuevo password
+            $alertas = $usuario->validarPassword();
+
+            if(empty($alertas)) {
+                // Hashear password
+                $usuario->hashPassword();
+                $usuario->token = "";
+
+                $resultado = $usuario->guardar();
+
+                if($resultado) {
+                    header('Location: /');
+                }
+            }
 
         }
 
+        $alertas = Usuario::getAlertas();
+
         $router->render('auth/reestablecer', [
             // Para crear titulos dinamicos
-            'titulo' => 'Reestablecer Password'
+            'titulo' => 'Reestablecer Password',
+            'alertas' => $alertas,
+            'mostrar' => $mostrar
         ]);
     }
 
