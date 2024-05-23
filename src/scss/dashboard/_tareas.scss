@@ -26,6 +26,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    &:hover {
+        cursor: pointer;
+    }
     &:last-of-type {
         border: none;
     }
